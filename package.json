@@ -1,0 +1,17 @@
+{
+  "name": "hono",
+  "type": "module",
+  "scripts": {
+    "start": "dotenv -e .env -- sh -c 'vercel dev --token \"$ADMIN_VANCOUVER_KDD_COM_TOKEN\"'"
+  },
+  "dependencies": {
+    "hono": "^4.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "dotenv-cli": "^7.4.1",
+    "prettier": "^3.6.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}
