@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      discord-interactions:
+        specifier: ^4.3.0
+        version: 4.3.0
       hono:
         specifier: ^4.9.1
         version: 4.9.1
@@ -193,6 +196,10 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
+  discord-interactions@4.3.0:
+    resolution: {integrity: sha512-qCJEnuQeIDIo26MPEqYlIiYokqwFAMoRsmEE0PgAuiTYNXIMB9Z40LmqlgYe0yBO+743+AOnfTQdUK1WLg8+pw==}
+    engines: {node: '>=18.4.0'}
+
   dotenv-cli@7.4.4:
     resolution: {integrity: sha512-XkBYCG0tPIes+YZr4SpfFv76SQrV/LeCE8CI7JSEMi3VR9MvTihCGTOtbIexD6i2mXF+6px7trb1imVCXSNMDw==}
     hasBin: true
@@ -355,6 +362,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  discord-interactions@4.3.0: {}
 
   dotenv-cli@7.4.4:
     dependencies:
