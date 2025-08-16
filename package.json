@@ -2,9 +2,11 @@
   "name": "hono",
   "type": "module",
   "scripts": {
-    "start": "dotenv -e .env -- sh -c 'vercel dev --token \"$VERCEL_ADMIN_VANCOUVER_KDD_COM_TOKEN\"'"
+    "start": "dotenv -e .env -- sh -c 'vercel dev --token \"$VERCEL_ADMIN_VANCOUVER_KDD_COM_TOKEN\"'",
+    "dev": "tsx --env-file=.env src/index.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^1.18.2",
     "discord-interactions": "^4.3.0",
     "discord.js": "^14.21.0",
     "hono": "^4.9.1"

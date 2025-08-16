@@ -1,3 +1,4 @@
+import {serve} from '@hono/node-server'
 import {Hono} from 'hono'
 import {verifyKey} from 'discord-interactions'
 import {Client, GatewayIntentBits, REST, Routes} from 'discord.js'
@@ -168,3 +169,4 @@ app.post('/api/v1/discord/webhook', async (c) => {
 })
 
 export default app
+serve(app)
