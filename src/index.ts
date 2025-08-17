@@ -3,6 +3,9 @@ import {Hono} from 'hono'
 import {verifyKey} from 'discord-interactions'
 // import {Client, GatewayIntentBits, REST, Routes} from 'discord.js'
 import {stream, streamText, streamSSE} from 'hono/streaming'
+import {Ollama} from 'ollama'
+
+const ollama = new Ollama({host: process.env.OLLAMA_SERVER_URL})
 
 const app = new Hono()
 
@@ -13,6 +16,17 @@ const welcomeStrings = [
 
 app.get('/', (c) => {
   return c.text(welcomeStrings.join('\n\n'))
+})
+
+app.get('/ollama', async (c) => {
+  return streamText(c, async (stream) => {
+    await stream.write('Generating Text from ollama...')
+    const response = await ollama.generate({
+      model: 'gemma3n:e4b',
+      prompt: 'Hello, world!',
+    })
+    await stream.write(response.response)
+  })
 })
 
 app.get('/discord', (c) => {
@@ -303,7 +317,7 @@ async function fetchDiscordUserMessages(userId: string) {
 }
 
 async function fetchDiscordGuildMembers(guildId: string) {
-  const members = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members`, {
+  const members = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`, {
     headers: {
       Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
       'Content-Type': 'application/json',
