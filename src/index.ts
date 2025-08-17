@@ -5,7 +5,12 @@ import {verifyKey} from 'discord-interactions'
 import {stream, streamText, streamSSE} from 'hono/streaming'
 import {Ollama} from 'ollama'
 
-const ollama = new Ollama({host: process.env.OLLAMA_SERVER_URL})
+const ollama = new Ollama({
+  host: process.env.OLLAMA_SERVER_URL,
+  headers: {
+    Authorization: `Bearer ${process.env.OLLAMA_API_KEY}`,
+  },
+})
 
 const app = new Hono()
 
@@ -21,14 +26,17 @@ app.get('/', (c) => {
 app.get('/ollama', async (c) => {
   return streamText(c, async (stream) => {
     await stream.writeln('Connecting to ollama...')
-    const responseOllama = await fetch(process.env.OLLAMA_SERVER_URL ?? '')
-    await stream.writeln(await responseOllama.text())
-    await stream.writeln('Generating Text from ollama...')
-    const response = await ollama.generate({
-      model: 'gemma3n:e4b',
-      prompt: 'Hello, world!',
+    // const responseOllama = await fetch(process.env.OLLAMA_SERVER_URL ?? '')
+    // await stream.writeln(await responseOllama.text())
+    await stream.writeln('Generating Text from ollama... (Explain quantum computing)')
+    const response = await ollama.chat({
+      model: process.env.OLLAMA_MODEL ?? 'gemma3n:e4b',
+      messages: [{role: 'user', content: 'Explain quantum computing'}],
+      stream: true,
     })
-    await stream.writeln(response.response)
+    for await (const part of response) {
+      stream.write(part.message.content)
+    }
   })
 })
 
