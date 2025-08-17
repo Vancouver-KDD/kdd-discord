@@ -1,7 +1,7 @@
-import {serve} from '@hono/node-server'
+// import {serve} from '@hono/node-server'
 import {Hono} from 'hono'
 import {verifyKey} from 'discord-interactions'
-import {Client, GatewayIntentBits, REST, Routes} from 'discord.js'
+// import {Client, GatewayIntentBits, REST, Routes} from 'discord.js'
 import {stream, streamText, streamSSE} from 'hono/streaming'
 
 const app = new Hono()
@@ -17,22 +17,32 @@ app.get('/', (c) => {
 
 app.get('/discord', (c) => {
   return streamText(c, async (stream) => {
-    await stream.writeln('Hello')
-    const client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds, // Required for general guild-related events
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.MessageContent, // Crucial for reading message content
-      ],
-    })
-    client.on('ready', () => {
-      stream.writeln(`Logged in as ${client.user?.tag}`)
-    })
-    client.on('messageCreate', (message) => {
-      stream.writeln(`Message received: ${message.content}`)
-    })
-    client.login(process.env.DISCORD_BOT_TOKEN)
+    // await stream.writeln('Hello')
+    const members = await fetchDiscordGuildMembers(process.env.DISCORD_GUILD_ID ?? '')
+    await stream.writeln(JSON.stringify(members, null, 2))
+
+    const guildsData = await fetchDiscordMessages()
+    const formatted = JSON.stringify(guildsData, null, 2)
+    await stream.writeln(formatted)
+    // JSON stringify but formatted
+    // await stream.writeln(formatted)
+    // await stream.sleep(1000)
+    // await stream.writeln(' World2')
+    // const client = new Client({
+    //   intents: [
+    //     GatewayIntentBits.Guilds, // Required for general guild-related events
+    //     GatewayIntentBits.GuildMessages,
+    //     GatewayIntentBits.DirectMessages,
+    //     GatewayIntentBits.MessageContent, // Crucial for reading message content
+    //   ],
+    // })
+    // client.on('ready', () => {
+    //   stream.writeln(`Logged in as ${client.user?.tag}`)
+    // })
+    // client.on('messageCreate', (message) => {
+    //   stream.writeln(`Message received: ${message.content}`)
+    // })
+    // client.login(process.env.DISCORD_BOT_TOKEN)
     // return c.text('Hello World')
     // Write a text with a new line ('\n').
     // Wait 1 second.
@@ -169,4 +179,135 @@ app.post('/api/v1/discord/webhook', async (c) => {
 })
 
 export default app
-serve(app)
+// serve(app)
+
+async function fetchDiscordMessages() {
+  try {
+    // 1. fetch all guild ids
+    // const guilds = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+    //   headers: {
+    //     Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    // })
+
+    // const guildsData = await guilds.json()
+    // const guildsData2 = guildsData.map((guild: any) => {
+    //   return {
+    //     id: guild.id,
+    //     name: guild.name,
+    //   }
+    // })
+
+    // guildsData.forEach(async (guild: any) => {
+    //   const channels = await fetch(
+    //     `https://discord.com/api/v10/guilds/${guild.id}/channels`,
+    //     {
+    //       headers: {
+    //         Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+    //         'Content-Type': 'application/json',
+    //       },
+    //     }
+    //   )
+
+    //   const channelsData = await channels.json()
+    //   console.log(channelsData)
+    // })
+
+    // return guildsData
+    // console.log(guildsData)
+    //1. Fetch all members in a guild
+
+    // 1. fetch all channels in a guild
+    const channels = await fetch(
+      `https://discord.com/api/v10/guilds/${process.env.DISCORD_GUILD_ID}/channels`,
+      {
+        headers: {
+          Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    if (!channels.ok) {
+      const errorBody = await channels.text()
+      throw new Error(
+        `Failed to fetch channels (${channels.status} ${channels.statusText}): ${errorBody}`
+      )
+    }
+
+    const channelsData = await channels.json()
+    const textChannels = channelsData.filter((channel: any) => channel.type === 0)
+    // console.log(textChannels)
+    const channelMessages: Record<string, {messages: any[]}> = {}
+
+    await Promise.all(
+      textChannels.map(async (channel: any) => {
+        const messagesResponse = await fetch(
+          `https://discord.com/api/v10/channels/${channel.id}/messages?limit=50`,
+          {
+            headers: {
+              Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (!messagesResponse.ok) {
+          const errorBody = await messagesResponse.text()
+          console.error(
+            `Failed to fetch messages for channel ${channel.id} (${messagesResponse.status} ${messagesResponse.statusText}): ${errorBody}`
+          )
+          channelMessages[channel.id] = {messages: []}
+          return
+        }
+
+        const messagesData = await messagesResponse.json()
+        channelMessages[channel.id] = {messages: messagesData}
+      })
+    )
+
+    return channelMessages
+
+    // textChannels.forEach(async (channel: any) => {
+
+    // const response = await fetch(
+    //   'https://discord.com/api/v10/channels/1291999999999999999/messages',
+    //   {
+    //     headers: {
+    //       Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+    //       'Content-Type': 'application/json',
+    //     },
+    //   }
+    // )
+
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! status: ${response.status}`)
+    // }
+
+    // const messages = await response.json()
+    // console.log(messages) // Array of message objects
+  } catch (error) {
+    console.error('Error fetching messages:', error)
+  }
+}
+
+async function fetchDiscordUserMessages(userId: string) {
+  const messages = await fetch(`https://discord.com/api/v10/users/${userId}/messages`, {
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  return messages.json()
+}
+
+async function fetchDiscordGuildMembers(guildId: string) {
+  const members = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members`, {
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  return members.json()
+}

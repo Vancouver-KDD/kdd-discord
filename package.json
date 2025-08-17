@@ -2,7 +2,7 @@
   "name": "hono",
   "type": "module",
   "scripts": {
-    "start": "tsx src/index.ts",
+    "start": "dotenv -e .env -- sh -c 'vercel dev --token \"$VERCEL_ADMIN_VANCOUVER_KDD_COM_TOKEN\"'",
     "dev": "tsx --env-file=.env src/index.ts"
   },
   "dependencies": {
