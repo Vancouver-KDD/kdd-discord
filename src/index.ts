@@ -44,6 +44,7 @@ app.get('/discord', (c) => {
   return streamText(c, async (stream) => {
     // await stream.writeln('Hello')
     const members = await fetchDiscordGuildMembers(process.env.DISCORD_GUILD_ID ?? '')
+    await stream.write('const members =')
     await stream.writeln(JSON.stringify(members, null, 2))
 
     const guildsData = await fetchDiscordMessages()
@@ -327,6 +328,15 @@ async function fetchDiscordUserMessages(userId: string) {
   return messages.json()
 }
 
+type DiscordMember = {
+  nick: string | null
+  user: {
+    id: string
+    username: string
+    bot?: boolean
+  }
+}
+
 async function fetchDiscordGuildMembers(guildId: string) {
   const members = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members?limit=1000`, {
     headers: {
@@ -334,5 +344,15 @@ async function fetchDiscordGuildMembers(guildId: string) {
       'Content-Type': 'application/json',
     },
   })
-  return members.json()
+  const membersData = await members.json()
+  return membersData.map((member: DiscordMember) => {
+    return {
+      nick: member.nick,
+      user: {
+        id: member.user.id,
+        username: member.user.username,
+        bot: member.user.bot ?? false,
+      },
+    }
+  })
 }
