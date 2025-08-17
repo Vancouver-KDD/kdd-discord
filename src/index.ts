@@ -20,15 +20,15 @@ app.get('/', (c) => {
 
 app.get('/ollama', async (c) => {
   return streamText(c, async (stream) => {
-    await stream.write('Connecting to ollama...')
+    await stream.writeln('Connecting to ollama...')
     const responseOllama = await fetch(process.env.OLLAMA_SERVER_URL ?? '')
-    await stream.write(await responseOllama.text())
-    await stream.write('Generating Text from ollama...')
+    await stream.writeln(await responseOllama.text())
+    await stream.writeln('Generating Text from ollama...')
     const response = await ollama.generate({
       model: 'gemma3n:e4b',
       prompt: 'Hello, world!',
     })
-    await stream.write(response.response)
+    await stream.writeln(response.response)
   })
 })
 
