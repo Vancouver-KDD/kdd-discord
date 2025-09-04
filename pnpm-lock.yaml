@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.18.2
-        version: 1.18.2(hono@4.9.2)
+        version: 1.18.2(hono@4.9.6)
       discord-interactions:
         specifier: ^4.3.0
         version: 4.3.0
       hono:
         specifier: ^4.9.2
-        version: 4.9.2
+        version: 4.9.6
       ollama:
         specifier: ^0.5.17
         version: 0.5.17
@@ -777,8 +777,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  hono@4.9.2:
-    resolution: {integrity: sha512-UG2jXGS/gkLH42l/1uROnwXpkjvvxkl3kpopL3LBo27NuaDPI6xHNfuUSilIHcrBkPfl4y0z6y2ByI455TjNRw==}
+  hono@4.9.6:
+    resolution: {integrity: sha512-doVjXhSFvYZ7y0dNokjwwSahcrAfdz+/BCLvAMa/vHLzjj8+CFyV5xteThGUsKdkaasgN+gF2mUxao+SGLpUeA==}
     engines: {node: '>=16.9.0'}
 
   http-errors@1.4.0:
@@ -1386,9 +1386,9 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@hono/node-server@1.18.2(hono@4.9.2)':
+  '@hono/node-server@1.18.2(hono@4.9.6)':
     dependencies:
-      hono: 4.9.2
+      hono: 4.9.6
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -1994,7 +1994,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  hono@4.9.2: {}
+  hono@4.9.6: {}
 
   http-errors@1.4.0:
     dependencies:
